@@ -17,17 +17,17 @@ export default function ArtifactDetails() {
       try {
         // Increment views
         await axios.put(
-          `http://localhost:5000/api/artifacts/${id}/view`
+          `https://museum-project-el4m.onrender.com/api/artifacts/${id}/view`
         );
 
         // Get updated artifact
         const res = await axios.get(
-          `http://localhost:5000/api/artifacts/${id}`
+          `https://museum-project-el4m.onrender.com/api/artifacts/${id}`
         );
 
         setArtifact(res.data);
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching artifact:", err);
       } finally {
         setLoading(false);
       }
@@ -39,12 +39,12 @@ export default function ArtifactDetails() {
   const handleLike = async () => {
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/artifacts/${artifact._id}/like`
+        `https://museum-project-el4m.onrender.com/api/artifacts/${artifact._id}/like`
       );
 
       setArtifact(res.data);
     } catch (err) {
-      console.error(err);
+      console.error("Error liking artifact:", err);
     }
   };
 
