@@ -18,7 +18,7 @@ export default function Home() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/artifacts")
+      .get("https://museum-project-el4m.onrender.com/api/artifacts")
       .then((res) => {
         setArtifacts(res.data);
       })
