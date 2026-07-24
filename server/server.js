@@ -4,6 +4,7 @@ import express from "express";
 
 import connectDB from "./config/db.js";
 import artifactRoutes from "./routes/artifactRoutes.js";
+console.log("artifactRoutes imported:", artifactRoutes);
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(express.json());
 
 // Routes
 app.use("/api/artifacts", artifactRoutes);
+console.log("Artifact routes mounted");
 
 // Home Route
 app.get("/", (req, res) => {
