@@ -223,12 +223,12 @@ export default function ArtifactForm({
 
         <div className="col-span-2">
           <label className="font-semibold block mb-2">
-            3D Model (.glb / .gltf)
+            3D Model (.glb / .gltf / .ply)
           </label>
 
           <input
             type="file"
-            accept=".glb,.gltf"
+            accept=".glb,.gltf,.ply"
             className="border p-2 rounded w-full"
             onChange={(e) => {
               const file = e.target.files[0];

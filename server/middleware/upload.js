@@ -25,40 +25,36 @@ const storage = multer.diskStorage({
 
     cb(
       null,
-      unique + path.extname(file.originalname)
+      unique + path.extname(file.originalname).toLowerCase()
     );
-  }
+  },
 });
 
 const fileFilter = (req, file, cb) => {
-
   if (file.fieldname === "image") {
-
-    if (
-      file.mimetype.startsWith("image/")
-    ) {
+    if (file.mimetype.startsWith("image/")) {
       cb(null, true);
     } else {
-      cb(new Error("Only images allowed"));
+      cb(new Error("Only image files are allowed."));
     }
-
   } else if (file.fieldname === "model") {
+    const ext = path.extname(file.originalname).toLowerCase();
 
-    const ext = path.extname(file.originalname);
-
-    if (
-      ext === ".glb" ||
-      ext === ".gltf"
-    ) {
+    if ([".glb", ".gltf", ".ply"].includes(ext)) {
       cb(null, true);
     } else {
-      cb(new Error("Only GLB/GLTF models allowed"));
+      cb(
+        new Error(
+          "Only .glb, .gltf and .ply model files are allowed."
+        )
+      );
     }
-
+  } else {
+    cb(new Error("Invalid upload field."));
   }
 };
 
 export default multer({
   storage,
-  fileFilter
+  fileFilter,
 });
