@@ -1,4 +1,6 @@
 import express from "express";
+import upload from "../middleware/upload.js";
+
 import {
   createArtifact,
   deleteArtifact,
@@ -8,7 +10,6 @@ import {
   likeArtifact,
   updateArtifact,
 } from "../controllers/artifactController.js";
-import upload from "../middleware/upload.js";
 
 const router = express.Router();
 

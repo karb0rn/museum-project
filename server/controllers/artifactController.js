@@ -152,3 +152,22 @@ export const updateArtifact = async (req, res) => {
 
   }
 };
+export const deleteArtifact = async (req, res) => {
+  try {
+    const artifact = await Artifact.findByIdAndDelete(req.params.id);
+
+    if (!artifact) {
+      return res.status(404).json({
+        message: "Artifact not found",
+      });
+    }
+
+    res.json({
+      message: "Artifact deleted successfully",
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+};
