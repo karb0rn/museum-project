@@ -38,6 +38,13 @@ app.get("*", (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
+console.log("Uploads exists:", fs.existsSync(path.join(__dirname, "uploads")));
+console.log(
+  "Models:",
+  fs.readdirSync(path.join(__dirname, "uploads/models"), {
+    withFileTypes: false,
+  })
+);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
