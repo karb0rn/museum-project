@@ -32,7 +32,7 @@ function PLYModel({ modelPath }) {
         geometry={geometry}
         material={
           new MeshStandardMaterial({
-            color: "#b0b0b0",
+            color: "#a11f1f",
             roughness: 0.8,
             metalness: 0.1,
           })
