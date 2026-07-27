@@ -1,6 +1,5 @@
 import { Center, useGLTF } from "@react-three/drei";
 import { useLoader } from "@react-three/fiber";
-import { MeshStandardMaterial } from "three";
 import { PLYLoader } from "three/examples/jsm/loaders/PLYLoader";
 
 function GLTFModel({ modelPath }) {
@@ -29,18 +28,12 @@ function PLYModel({ modelPath }) {
 
   return (
     <Center>
-      <mesh
-        geometry={geometry}
-        material={
-          new MeshStandardMaterial({
-            color: "#a11f1f",
-            roughness: 0.8,
-            metalness: 0.1,
-          })
-        }
-        scale={0.05}
-        position={[0, 0, 0]}
-      />
+      <points geometry={geometry} scale={0.05}>
+        <pointsMaterial
+          color="red"
+          size={0.005}
+        />
+      </points>
     </Center>
   );
 }
