@@ -19,6 +19,7 @@ function GLTFModel({ modelPath }) {
 
 function PLYModel({ modelPath }) {
   const geometry = useLoader(PLYLoader, modelPath);
+  console.log(geometry);
 
   geometry.computeVertexNormals();
   geometry.center();
