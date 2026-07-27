@@ -21,14 +21,24 @@ function PLYModel({ modelPath }) {
   const geometry = useLoader(PLYLoader, modelPath);
 
   geometry.computeVertexNormals();
+  geometry.center();
+  geometry.computeBoundingSphere();
+
+  geometry.computeVertexNormals();
 
   return (
     <Center>
       <mesh
         geometry={geometry}
-        material={new MeshStandardMaterial({ color: "lightgray" })}
-        scale={3}
-        position={[0, -0.5, 0]}
+        material={
+          new MeshStandardMaterial({
+            color: "#b0b0b0",
+            roughness: 0.8,
+            metalness: 0.1,
+          })
+        }
+        scale={0.05}
+        position={[0, 0, 0]}
       />
     </Center>
   );
