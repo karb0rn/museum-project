@@ -8,15 +8,36 @@ import {
   likeArtifact,
   updateArtifact,
 } from "../controllers/artifactController.js";
+import upload from "../middleware/upload.js";
 
 const router = express.Router();
 
 router.get("/", getArtifacts);
 router.get("/:id", getArtifact);
 
-router.post("/", createArtifact);
+router.post(
+  "/",
+  upload.fields([
+    {
+      name: "image",
+      maxCount: 1
+    },
+    {
+      name: "model",
+      maxCount: 1
+    }
+  ]),
+  createArtifact
+);
 
-router.put("/:id", updateArtifact);
+router.put(
+  "/:id",
+  upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "model", maxCount: 1 },
+  ]),
+  updateArtifact
+);
 
 router.put("/:id/like", likeArtifact);
 router.put("/:id/view", incrementViews);

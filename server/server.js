@@ -20,7 +20,7 @@ const __dirname = path.dirname(__filename);
 // Middleware
 app.use(cors());
 app.use(express.json());
-
+app.use("/uploads", express.static("uploads"));
 // API Routes
 app.use("/api/artifacts", artifactRoutes);
 

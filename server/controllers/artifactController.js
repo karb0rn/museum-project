@@ -78,14 +78,37 @@ export const incrementViews = async (req, res) => {
 };
 export const createArtifact = async (req, res) => {
   try {
-    const artifact = new Artifact(req.body);
 
-    const savedArtifact = await artifact.save();
+    const image =
+      req.files?.image
+        ? `/uploads/images/${req.files.image[0].filename}`
+        : "";
 
-    res.status(201).json(savedArtifact);
+    const model =
+      req.files?.model
+        ? `/uploads/models/${req.files.model[0].filename}`
+        : "";
+
+    const artifact = await Artifact.create({
+      title: req.body.title,
+      museum: req.body.museum,
+      dynasty: req.body.dynasty,
+      century: req.body.century,
+      description: req.body.description,
+
+      image,
+      model,
+
+      likes: 0,
+      views: 0,
+    });
+
+    res.status(201).json(artifact);
+
   } catch (err) {
-    res.status(400).json({
-      message: err.message,
+    console.error(err);
+    res.status(500).json({
+      message: err.message
     });
   }
 };

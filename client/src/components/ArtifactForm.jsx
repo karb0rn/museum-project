@@ -14,28 +14,35 @@ export default function ArtifactForm({
     material: "",
     period: "",
     description: "",
-    image: "",
-    model: "",
     likes: 0,
     views: 0,
   });
 
+  const [imageFile, setImageFile] = useState(null);
+  const [modelFile, setModelFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
+
   useEffect(() => {
-    if (editingArtifact) {
-      setForm({
-        id: editingArtifact.id || "",
-        title: editingArtifact.title || "",
-        museum: editingArtifact.museum || "",
-        dynasty: editingArtifact.dynasty || "",
-        material: editingArtifact.material || "",
-        period: editingArtifact.period || "",
-        description: editingArtifact.description || "",
-        image: editingArtifact.image || "",
-        model: editingArtifact.model || "",
-        likes: editingArtifact.likes || 0,
-        views: editingArtifact.views || 0,
-      });
+    if (!editingArtifact) {
+      clearForm();
+      return;
     }
+
+    setForm({
+      id: editingArtifact.id || "",
+      title: editingArtifact.title || "",
+      museum: editingArtifact.museum || "",
+      dynasty: editingArtifact.dynasty || "",
+      material: editingArtifact.material || "",
+      period: editingArtifact.period || "",
+      description: editingArtifact.description || "",
+      likes: editingArtifact.likes || 0,
+      views: editingArtifact.views || 0,
+    });
+
+    setImagePreview(editingArtifact.image || "");
+    setImageFile(null);
+    setModelFile(null);
   }, [editingArtifact]);
 
   const handleChange = (e) => {
@@ -54,21 +61,37 @@ export default function ArtifactForm({
       material: "",
       period: "",
       description: "",
-      image: "",
-      model: "",
       likes: 0,
       views: 0,
     });
+
+    setImageFile(null);
+    setModelFile(null);
+    setImagePreview("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
+      const data = new FormData();
+
+      Object.entries(form).forEach(([key, value]) => {
+        data.append(key, value);
+      });
+
+      if (imageFile) data.append("image", imageFile);
+      if (modelFile) data.append("model", modelFile);
+
       if (editingArtifact) {
         await axios.put(
           `/api/artifacts/${editingArtifact._id}`,
-          form
+          data,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
         );
 
         alert("Artifact updated successfully!");
@@ -79,7 +102,15 @@ export default function ArtifactForm({
           onUpdateComplete();
         }
       } else {
-        await axios.post("/api/artifacts", form);
+        await axios.post(
+          "/api/artifacts",
+          data,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
 
         alert("Artifact added successfully!");
 
@@ -100,11 +131,12 @@ export default function ArtifactForm({
       onSubmit={handleSubmit}
       className="bg-white shadow rounded-lg p-6 mb-8"
     >
-      <h2 className="text-2xl font-bold mb-4">
+      <h2 className="text-2xl font-bold mb-6">
         {editingArtifact ? "Edit Artifact" : "Add New Artifact"}
       </h2>
 
       <div className="grid grid-cols-2 gap-4">
+
         <input
           type="number"
           name="id"
@@ -161,23 +193,59 @@ export default function ArtifactForm({
           className="border p-2 rounded"
         />
 
-        <input
-          type="text"
-          name="image"
-          placeholder="/images/example.jpg"
-          value={form.image}
-          onChange={handleChange}
-          className="border p-2 rounded"
-        />
+        <div className="col-span-2">
+          <label className="font-semibold block mb-2">
+            Artifact Image
+          </label>
 
-        <input
-          type="text"
-          name="model"
-          placeholder="/models/example.glb"
-          value={form.model}
-          onChange={handleChange}
-          className="border p-2 rounded"
-        />
+          <input
+            type="file"
+            accept="image/*"
+            className="border p-2 rounded w-full"
+            onChange={(e) => {
+              const file = e.target.files[0];
+
+              if (!file) return;
+
+              setImageFile(file);
+              setImagePreview(URL.createObjectURL(file));
+            }}
+          />
+
+          {imagePreview && (
+            <img
+              src={imagePreview}
+              alt="Preview"
+              className="mt-4 w-64 rounded-lg shadow"
+            />
+          )}
+        </div>
+
+        <div className="col-span-2">
+          <label className="font-semibold block mb-2">
+            3D Model (.glb / .gltf)
+          </label>
+
+          <input
+            type="file"
+            accept=".glb,.gltf"
+            className="border p-2 rounded w-full"
+            onChange={(e) => {
+              const file = e.target.files[0];
+
+              if (!file) return;
+
+              setModelFile(file);
+            }}
+          />
+
+          {modelFile && (
+            <p className="mt-2 text-green-600 font-medium">
+              🗿 {modelFile.name}
+            </p>
+          )}
+        </div>
+
       </div>
 
       <textarea
@@ -186,12 +254,12 @@ export default function ArtifactForm({
         value={form.description}
         onChange={handleChange}
         className="border p-2 rounded w-full mt-4"
-        rows="4"
+        rows="5"
       />
 
       <button
         type="submit"
-        className="mt-4 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded"
+        className="mt-6 bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold"
       >
         {editingArtifact ? "Update Artifact" : "Add Artifact"}
       </button>
