@@ -17,8 +17,7 @@ export default function Home() {
   const [period, setPeriod] = useState("All");
 
   useEffect(() => {
-    axios
-      .get("https://museum-project-el4m.onrender.com/api/artifacts")
+    axios.get("/api/artifacts")
       .then((res) => {
         setArtifacts(res.data);
       })

@@ -1,32 +1,36 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
 
 import connectDB from "./config/db.js";
 import artifactRoutes from "./routes/artifactRoutes.js";
-console.log("artifactRoutes imported:", artifactRoutes);
 
 dotenv.config();
 
-// Connect to MongoDB
 connectDB();
 
 const app = express();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
-// Routes
+// API Routes
 app.use("/api/artifacts", artifactRoutes);
-console.log("Artifact routes mounted");
 
-// Home Route
-app.get("/", (req, res) => {
-  res.send("Virtual Museum API is running...");
+// Serve React build
+app.use(express.static(path.join(__dirname, "../client/dist")));
+
+// React Router fallback
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/dist/index.html"));
 });
 
-// Start Server
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {

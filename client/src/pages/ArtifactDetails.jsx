@@ -16,14 +16,11 @@ export default function ArtifactDetails() {
     const fetchArtifact = async () => {
       try {
         // Increment views
-        await axios.put(
-          `https://museum-project-el4m.onrender.com/api/artifacts/${id}/view`
-        );
+        await axios.put(`/api/artifacts/${id}/view`);
 
         // Get updated artifact
-        const res = await axios.get(
-          `https://museum-project-el4m.onrender.com/api/artifacts/${id}`
-        );
+        const res = await axios.get(`/api/artifacts/${id}`);
+
 
         setArtifact(res.data);
       } catch (err) {
@@ -38,9 +35,7 @@ export default function ArtifactDetails() {
 
   const handleLike = async () => {
     try {
-      const res = await axios.put(
-        `https://museum-project-el4m.onrender.com/api/artifacts/${artifact._id}/like`
-      );
+      const res = await axios.put(`/api/artifacts/${artifact._id}/like`);
 
       setArtifact(res.data);
     } catch (err) {
