@@ -20,7 +20,12 @@ const __dirname = path.dirname(__filename);
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use("/uploads", express.static("uploads"));
+const uploadsPath = path.join(__dirname, "uploads");
+
+console.log("Uploads Path:", uploadsPath);
+console.log("Exists:", fs.existsSync(uploadsPath));
+
+app.use("/uploads", express.static(uploadsPath));
 // API Routes
 app.use("/api/artifacts", artifactRoutes);
 

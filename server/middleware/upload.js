@@ -3,8 +3,15 @@ import multer from "multer";
 import path from "path";
 
 // Ensure folders exist
-const imageDir = "uploads/images";
-const modelDir = "uploads/models";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const uploadDir = path.join(__dirname, "../uploads");
+
+const imageDir = path.join(uploadDir, "images");
+const modelDir = path.join(uploadDir, "models");
 
 fs.mkdirSync(imageDir, { recursive: true });
 fs.mkdirSync(modelDir, { recursive: true });
