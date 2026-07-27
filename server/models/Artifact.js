@@ -41,3 +41,7 @@ const artifactSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+const Artifact = mongoose.model("Artifact", artifactSchema);
+
+export default Artifact;
