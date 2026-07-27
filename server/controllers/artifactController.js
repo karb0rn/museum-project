@@ -78,22 +78,21 @@ export const incrementViews = async (req, res) => {
 };
 export const createArtifact = async (req, res) => {
   try {
+    const image = req.files?.image
+      ? `/uploads/images/${req.files.image[0].filename}`
+      : "";
 
-    const image =
-      req.files?.image
-        ? `/uploads/images/${req.files.image[0].filename}`
-        : "";
-
-    const model =
-      req.files?.model
-        ? `/uploads/models/${req.files.model[0].filename}`
-        : "";
+    const model = req.files?.model
+      ? `/uploads/models/${req.files.model[0].filename}`
+      : "";
 
     const artifact = await Artifact.create({
+      id: req.body.id,
       title: req.body.title,
       museum: req.body.museum,
       dynasty: req.body.dynasty,
-      century: req.body.century,
+      material: req.body.material,
+      period: req.body.period,
       description: req.body.description,
 
       image,
@@ -104,55 +103,52 @@ export const createArtifact = async (req, res) => {
     });
 
     res.status(201).json(artifact);
-
   } catch (err) {
     console.error(err);
+
     res.status(500).json({
-      message: err.message
+      message: err.message,
     });
   }
 };
 export const updateArtifact = async (req, res) => {
   try {
-    const artifact = await Artifact.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+
+    const artifact = await Artifact.findById(req.params.id);
 
     if (!artifact) {
       return res.status(404).json({
         message: "Artifact not found",
       });
     }
+
+    artifact.id = req.body.id;
+    artifact.title = req.body.title;
+    artifact.museum = req.body.museum;
+    artifact.dynasty = req.body.dynasty;
+    artifact.material = req.body.material;
+    artifact.period = req.body.period;
+    artifact.description = req.body.description;
+
+    if (req.files?.image) {
+      artifact.image = `/uploads/images/${req.files.image[0].filename}`;
+    }
+
+    if (req.files?.model) {
+      artifact.model = `/uploads/models/${req.files.model[0].filename}`;
+    }
+
+    await artifact.save();
 
     res.json(artifact);
+
   } catch (err) {
-    res.status(400).json({
-      message: err.message,
-    });
-  }
-};
 
-export const deleteArtifact = async (req, res) => {
-  try {
-    const artifact = await Artifact.findByIdAndDelete(req.params.id);
+    console.error(err);
 
-    if (!artifact) {
-      return res.status(404).json({
-        message: "Artifact not found",
-      });
-    }
-
-    res.json({
-      message: "Artifact deleted successfully",
-    });
-  } catch (err) {
     res.status(500).json({
       message: err.message,
     });
+
   }
 };

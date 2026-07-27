@@ -33,8 +33,14 @@ router.post(
 router.put(
   "/:id",
   upload.fields([
-    { name: "image", maxCount: 1 },
-    { name: "model", maxCount: 1 },
+    {
+      name: "image",
+      maxCount: 1,
+    },
+    {
+      name: "model",
+      maxCount: 1,
+    },
   ]),
   updateArtifact
 );
