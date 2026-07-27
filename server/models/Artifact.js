@@ -1,3 +1,5 @@
+import mongoose from "mongoose";
+
 const artifactSchema = new mongoose.Schema(
   {
     id: {
@@ -5,12 +7,10 @@ const artifactSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-
     title: {
       type: String,
       required: true,
     },
-
     museum: String,
     dynasty: String,
     material: String,
