@@ -18,6 +18,13 @@ function GLTFModel({ modelPath }) {
 
 function PLYModel({ modelPath }) {
   const geometry = useLoader(PLYLoader, modelPath);
+  console.log("Vertex Count:", geometry.attributes.position?.count);
+  console.log("Normals:", geometry.attributes.normal);
+  console.log("Colors:", geometry.attributes.color);
+  console.log("Index:", geometry.index);
+
+  geometry.computeBoundingBox();
+  console.log("Bounding Box:", geometry.boundingBox);
   console.log(geometry);
 
   geometry.computeVertexNormals();
