@@ -1,5 +1,6 @@
 import { Center, useGLTF } from "@react-three/drei";
 import { useLoader } from "@react-three/fiber";
+import * as THREE from "three";
 import { PLYLoader } from "three/examples/jsm/loaders/PLYLoader";
 
 function GLTFModel({ modelPath }) {
@@ -18,29 +19,35 @@ function GLTFModel({ modelPath }) {
 
 function PLYModel({ modelPath }) {
   const geometry = useLoader(PLYLoader, modelPath);
-  console.log("Vertex Count:", geometry.attributes.position?.count);
-  console.log("Normals:", geometry.attributes.normal);
-  console.log("Colors:", geometry.attributes.color);
-  console.log("Index:", geometry.index);
 
+  geometry.computeVertexNormals();
   geometry.computeBoundingBox();
-  console.log("Bounding Box:", geometry.boundingBox);
-  console.log(geometry);
-
-  geometry.computeVertexNormals();
-  geometry.center();
   geometry.computeBoundingSphere();
+  geometry.center();
 
-  geometry.computeVertexNormals();
+  const size = new THREE.Vector3();
+  geometry.boundingBox.getSize(size);
+
+  console.log("Bounding Box:", geometry.boundingBox);
+  console.log("Size:", size);
+
+  const maxDim = Math.max(size.x, size.y, size.z);
+  const scale = maxDim > 0 ? 2 / maxDim : 1;
 
   return (
     <Center>
-      <points geometry={geometry} scale={0.05}>
-        <pointsMaterial
+      <mesh
+        geometry={geometry}
+        scale={scale}
+        rotation={[-Math.PI / 2, 0, 0]} // Try changing this if needed
+      >
+        <meshStandardMaterial
           color="red"
-          size={0.005}
+          roughness={0.7}
+          metalness={0.1}
+          side={THREE.DoubleSide}
         />
-      </points>
+      </mesh>
     </Center>
   );
 }
