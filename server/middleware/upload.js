@@ -19,26 +19,26 @@ fs.mkdirSync(modelDir, { recursive: true });
 // Storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    console.log("Uploading:", file.originalname);
+    console.log("Receiving:", file.originalname);
     console.log("Field:", file.fieldname);
 
     if (file.fieldname === "image") {
-      console.log("Saving to:", imageDir);
+      console.log("Saving image to:", imageDir);
       cb(null, imageDir);
     } else if (file.fieldname === "model") {
-      console.log("Saving to:", modelDir);
+      console.log("Saving model to:", modelDir);
       cb(null, modelDir);
     }
   },
 
   filename: (req, file, cb) => {
-    const unique =
-      Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const filename =
+      Date.now() + "-" + Math.round(Math.random() * 1e9) +
+      path.extname(file.originalname).toLowerCase();
 
-    cb(
-      null,
-      unique + path.extname(file.originalname).toLowerCase()
-    );
+    console.log("Filename:", filename);
+
+    cb(null, filename);
   },
 });
 
