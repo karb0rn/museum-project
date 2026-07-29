@@ -19,9 +19,14 @@ fs.mkdirSync(modelDir, { recursive: true });
 // Storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
+    console.log("Uploading:", file.originalname);
+    console.log("Field:", file.fieldname);
+
     if (file.fieldname === "image") {
+      console.log("Saving to:", imageDir);
       cb(null, imageDir);
     } else if (file.fieldname === "model") {
+      console.log("Saving to:", modelDir);
       cb(null, modelDir);
     }
   },

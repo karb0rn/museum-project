@@ -78,6 +78,10 @@ export const incrementViews = async (req, res) => {
 };
 export const createArtifact = async (req, res) => {
   try {
+    console.log("========== CREATE ARTIFACT ==========");
+    console.log("Body:", req.body);
+    console.log("Files:", req.files);
+
     const image = req.files?.image
       ? `/uploads/images/${req.files.image[0].filename}`
       : "";
@@ -85,6 +89,9 @@ export const createArtifact = async (req, res) => {
     const model = req.files?.model
       ? `/uploads/models/${req.files.model[0].filename}`
       : "";
+
+    console.log("Image Path:", image);
+    console.log("Model Path:", model);
 
     const artifact = await Artifact.create({
       id: req.body.id,
@@ -94,18 +101,17 @@ export const createArtifact = async (req, res) => {
       material: req.body.material,
       period: req.body.period,
       description: req.body.description,
-
       image,
       model,
-
       likes: 0,
       views: 0,
     });
 
+    console.log("Artifact Saved");
+
     res.status(201).json(artifact);
   } catch (err) {
     console.error(err);
-
     res.status(500).json({
       message: err.message,
     });
