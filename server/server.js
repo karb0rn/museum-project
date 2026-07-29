@@ -25,12 +25,6 @@ const uploadsPath = path.join(__dirname, "uploads");
 console.log("Uploads Path:", uploadsPath);
 console.log("Exists:", fs.existsSync(uploadsPath));
 
-const uploadsPath = path.join(__dirname, "uploads");
-
-console.log("Uploads Path:", uploadsPath);
-console.log("Uploads Exists:", fs.existsSync(uploadsPath));
-
-app.use("/uploads", express.static(uploadsPath));
 // API Routes
 app.use("/api/artifacts", artifactRoutes);
 
