@@ -1,3 +1,5 @@
+import streamifier from "streamifier";
+import cloudinary from "../config/cloudinary.js";
 import Artifact from "../models/Artifact.js";
 
 // Get all artifacts
@@ -76,19 +78,49 @@ export const incrementViews = async (req, res) => {
     });
   }
 };
+const uploadToCloudinary = (buffer, folder, resourceType = "auto") => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder,
+        resource_type: resourceType,
+      },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+
+    streamifier.createReadStream(buffer).pipe(uploadStream);
+  });
+};
 export const createArtifact = async (req, res) => {
   try {
     console.log("========== CREATE ARTIFACT ==========");
     console.log("Body:", req.body);
     console.log("Files:", req.files);
 
-    const image = req.files?.image
-      ? `/uploads/images/${req.files.image[0].filename}`
-      : "";
+    let image = "";
+    let model = "";
 
-    const model = req.files?.model
-      ? `/uploads/models/${req.files.model[0].filename}`
-      : "";
+    if (req.files?.image) {
+      const result = await uploadToCloudinary(
+        req.files.image[0].buffer,
+        "museum/images"
+      );
+
+      image = result.secure_url;
+    }
+
+    if (req.files?.model) {
+      const result = await uploadToCloudinary(
+        req.files.model[0].buffer,
+        "museum/models",
+        "raw"
+      );
+
+      model = result.secure_url;
+    }
 
     console.log("Image Path:", image);
     console.log("Model Path:", model);
