@@ -1,5 +1,6 @@
 import { Center, Html, useGLTF } from "@react-three/drei";
 import { useLoader } from "@react-three/fiber";
+import { useMemo } from "react";
 import * as THREE from "three";
 import { PLYLoader } from "three/examples/jsm/loaders/PLYLoader";
 
@@ -25,12 +26,33 @@ function NoModel() {
 function GLTFModel({ modelPath }) {
   const { scene } = useGLTF(modelPath);
 
+  const { clonedScene, scale } = useMemo(() => {
+    const clone = scene.clone(true);
+
+    const box = new THREE.Box3().setFromObject(clone);
+
+    const center = new THREE.Vector3();
+    const size = new THREE.Vector3();
+
+    box.getCenter(center);
+    box.getSize(size);
+
+    clone.position.sub(center);
+
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const autoScale = maxDim > 0 ? 2 / maxDim : 1;
+
+    return {
+      clonedScene: clone,
+      scale: autoScale,
+    };
+  }, [scene]);
+
   return (
     <Center>
       <primitive
-        object={scene}
-        scale={3}
-        position={[0, -0.5, 0]}
+        object={clonedScene}
+        scale={scale}
       />
     </Center>
   );
@@ -39,16 +61,21 @@ function GLTFModel({ modelPath }) {
 function PLYModel({ modelPath }) {
   const geometry = useLoader(PLYLoader, modelPath);
 
-  geometry.computeVertexNormals();
-  geometry.computeBoundingBox();
-  geometry.computeBoundingSphere();
-  geometry.center();
+  const { scale } = useMemo(() => {
+    geometry.computeVertexNormals();
+    geometry.computeBoundingBox();
+    geometry.computeBoundingSphere();
+    geometry.center();
 
-  const size = new THREE.Vector3();
-  geometry.boundingBox.getSize(size);
+    const size = new THREE.Vector3();
+    geometry.boundingBox.getSize(size);
 
-  const maxDim = Math.max(size.x, size.y, size.z);
-  const scale = maxDim > 0 ? 2 / maxDim : 1;
+    const maxDim = Math.max(size.x, size.y, size.z);
+
+    return {
+      scale: maxDim > 0 ? 2 / maxDim : 1,
+    };
+  }, [geometry]);
 
   return (
     <Center>
@@ -58,9 +85,9 @@ function PLYModel({ modelPath }) {
         rotation={[-Math.PI / 2, 0, 0]}
       >
         <meshStandardMaterial
-          color="red"
+          color="#d0d0d0"
           roughness={0.7}
-          metalness={0.1}
+          metalness={0.2}
           side={THREE.DoubleSide}
         />
       </mesh>
@@ -69,27 +96,25 @@ function PLYModel({ modelPath }) {
 }
 
 export default function ArtifactModel({ modelPath }) {
-  if (
-    !modelPath ||
-    typeof modelPath !== "string" ||
-    modelPath.trim() === ""
-  ) {
+  if (!modelPath?.trim()) {
     return <NoModel />;
   }
 
-  const cleanPath = modelPath.trim();
-  const extension = cleanPath.split(".").pop().toLowerCase();
+  const extension = modelPath
+    .split("?")[0]
+    .split(".")
+    .pop()
+    ?.toLowerCase();
 
-  if (extension === "ply") {
-    return <PLYModel modelPath={cleanPath} />;
+  switch (extension) {
+    case "ply":
+      return <PLYModel modelPath={modelPath} />;
+
+    case "glb":
+    case "gltf":
+      return <GLTFModel modelPath={modelPath} />;
+
+    default:
+      return <NoModel />;
   }
-
-  if (extension === "glb" || extension === "gltf") {
-    return <GLTFModel modelPath={cleanPath} />;
-  }
-
-  return <NoModel />;
 }
-
-// Preload GLTF files
-useGLTF.preload = useGLTF.preload || (() => { });
