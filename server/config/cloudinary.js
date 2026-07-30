@@ -11,13 +11,6 @@ dotenv.config({
   path: path.join(__dirname, "../.env"),
 });
 
-console.log("Cloudinary ENV:");
-console.log("Cloud Name:", process.env.CLOUDINARY_CLOUD_NAME);
-console.log("API Key:", process.env.CLOUDINARY_API_KEY);
-console.log(
-  "API Secret:",
-  process.env.CLOUDINARY_API_SECRET ? "Loaded" : "Missing"
-);
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -25,6 +18,6 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-console.log("Configured Cloudinary:", cloudinary.config());
+
 
 export default cloudinary;
