@@ -1,32 +1,35 @@
 import dotenv from "dotenv";
 import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
 
 import connectDB from "./config/db.js";
 import artifactRoutes from "./routes/artifactRoutes.js";
 
-// Load environment variables
 dotenv.config();
 
-// Database
 connectDB();
 
-// Express
 const app = express();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 app.use(express.json());
 
-// Routes
+// API Routes
 app.use("/api/artifacts", artifactRoutes);
 
-// Start server
+// Serve React build
+app.use(express.static(path.join(__dirname, "../client/dist")));
+
+// React Router fallback
+app.get("/{*splat}", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/dist/index.html"));
+});
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
-  console.log("Cloudinary:", process.env.CLOUDINARY_CLOUD_NAME ? "Loaded" : "Missing");
-  console.log("Supabase URL:", process.env.SUPABASE_URL ? "Loaded" : "Missing");
-  console.log(
-    "Supabase Key:",
-    process.env.SUPABASE_SERVICE_ROLE_KEY ? "Loaded" : "Missing"
-  );
 });
