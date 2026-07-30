@@ -1,7 +1,26 @@
-import { Center, useGLTF } from "@react-three/drei";
+import { Center, Html, useGLTF } from "@react-three/drei";
 import { useLoader } from "@react-three/fiber";
 import * as THREE from "three";
 import { PLYLoader } from "three/examples/jsm/loaders/PLYLoader";
+
+function NoModel() {
+  return (
+    <Html center>
+      <div
+        style={{
+          background: "white",
+          padding: "10px 16px",
+          borderRadius: "8px",
+          fontWeight: "bold",
+          color: "#444",
+          boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
+        }}
+      >
+        No 3D Model Available
+      </div>
+    </Html>
+  );
+}
 
 function GLTFModel({ modelPath }) {
   const { scene } = useGLTF(modelPath);
@@ -28,9 +47,6 @@ function PLYModel({ modelPath }) {
   const size = new THREE.Vector3();
   geometry.boundingBox.getSize(size);
 
-  console.log("Bounding Box:", geometry.boundingBox);
-  console.log("Size:", size);
-
   const maxDim = Math.max(size.x, size.y, size.z);
   const scale = maxDim > 0 ? 2 / maxDim : 1;
 
@@ -39,7 +55,7 @@ function PLYModel({ modelPath }) {
       <mesh
         geometry={geometry}
         scale={scale}
-        rotation={[-Math.PI / 2, 0, 0]} // Try changing this if needed
+        rotation={[-Math.PI / 2, 0, 0]}
       >
         <meshStandardMaterial
           color="red"
@@ -53,11 +69,27 @@ function PLYModel({ modelPath }) {
 }
 
 export default function ArtifactModel({ modelPath }) {
-  const extension = modelPath.split(".").pop().toLowerCase();
-
-  if (extension === "ply") {
-    return <PLYModel modelPath={modelPath} />;
+  if (
+    !modelPath ||
+    typeof modelPath !== "string" ||
+    modelPath.trim() === ""
+  ) {
+    return <NoModel />;
   }
 
-  return <GLTFModel modelPath={modelPath} />;
+  const cleanPath = modelPath.trim();
+  const extension = cleanPath.split(".").pop().toLowerCase();
+
+  if (extension === "ply") {
+    return <PLYModel modelPath={cleanPath} />;
+  }
+
+  if (extension === "glb" || extension === "gltf") {
+    return <GLTFModel modelPath={cleanPath} />;
+  }
+
+  return <NoModel />;
 }
+
+// Preload GLTF files
+useGLTF.preload = useGLTF.preload || (() => { });

@@ -121,8 +121,23 @@ export default function ArtifactForm({
         }
       }
     } catch (err) {
-      console.error(err);
-      alert("Operation failed.");
+      console.error("Axios Error:", err);
+
+      if (err.response) {
+        console.log("Status:", err.response.status);
+        console.log("Response:", err.response.data);
+
+        alert(
+          err.response.data?.message ||
+          JSON.stringify(err.response.data)
+        );
+      } else if (err.request) {
+        console.log("No response from server");
+        alert("No response from server.");
+      } else {
+        console.log(err.message);
+        alert(err.message);
+      }
     }
   };
 

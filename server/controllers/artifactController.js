@@ -1,44 +1,69 @@
 import fs from "fs/promises";
+import path from "path";
 import cloudinary from "../config/cloudinary.js";
+import supabase from "../config/supabase.js";
 import Artifact from "../models/Artifact.js";
 
-// =========================
-// Helper
-// =========================
-const uploadToCloudinary = (filePath, folder, resourceType = "raw") => {
-  return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_large(
-      filePath,
-      {
-        folder,
-        resource_type: resourceType,
-        chunk_size: 6000000, // 6 MB chunks
-      }
-    );
+// ==========================================
+// Helpers
+// ==========================================
 
-    stream.on("error", reject);
-
-    stream.on("end", (result) => {
-      resolve(result);
-    });
+const uploadImage = async (filePath) => {
+  const result = await cloudinary.uploader.upload(filePath, {
+    folder: "museum/images",
+    resource_type: "image",
   });
+
+  return result.secure_url;
 };
 
-// =========================
-// Get all artifacts
-// =========================
+const uploadModel = async (filePath) => {
+  const fileName = `${Date.now()}-${path.basename(filePath)}`;
+
+  const buffer = await fs.readFile(filePath);
+
+  const { error } = await supabase.storage
+    .from("models")
+    .upload(fileName, buffer, {
+      contentType: "model/gltf-binary",
+      upsert: false,
+    });
+
+  if (error) throw error;
+
+  const { data } = supabase.storage
+    .from("models")
+    .getPublicUrl(fileName);
+
+  return data.publicUrl;
+};
+
+const cleanup = async (...files) => {
+  for (const file of files) {
+    if (!file) continue;
+
+    try {
+      await fs.unlink(file);
+    } catch { }
+  }
+};
+
+// ==========================================
+// GET ALL
+// ==========================================
+
 export const getArtifacts = async (req, res) => {
   try {
-    const artifacts = await Artifact.find();
-    res.json(artifacts);
+    res.json(await Artifact.find());
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-// =========================
-// Get one artifact
-// =========================
+// ==========================================
+// GET ONE
+// ==========================================
+
 export const getArtifact = async (req, res) => {
   try {
     const artifact = await Artifact.findById(req.params.id);
@@ -51,15 +76,14 @@ export const getArtifact = async (req, res) => {
 
     res.json(artifact);
   } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
+    res.status(500).json({ message: err.message });
   }
 };
 
-// =========================
-// Like
-// =========================
+// ==========================================
+// LIKE
+// ==========================================
+
 export const likeArtifact = async (req, res) => {
   try {
     const artifact = await Artifact.findByIdAndUpdate(
@@ -76,15 +100,14 @@ export const likeArtifact = async (req, res) => {
 
     res.json(artifact);
   } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
+    res.status(500).json({ message: err.message });
   }
 };
 
-// =========================
-// Views
-// =========================
+// ==========================================
+// VIEW
+// ==========================================
+
 export const incrementViews = async (req, res) => {
   try {
     const artifact = await Artifact.findByIdAndUpdate(
@@ -101,49 +124,29 @@ export const incrementViews = async (req, res) => {
 
     res.json(artifact);
   } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
+    res.status(500).json({ message: err.message });
   }
 };
 
-// =========================
-// Create
-// =========================
+// ==========================================
+// CREATE
+// ==========================================
+
 export const createArtifact = async (req, res) => {
+  const imagePath = req.files?.image?.[0]?.path;
+  const modelPath = req.files?.model?.[0]?.path;
+
   try {
-    let image = "";
-    let model = "";
-
-    // Upload image
-    if (req.files?.image?.[0]) {
-      const result = await uploadToCloudinary(
-        req.files.image[0].path,
-        "museum/images"
-      );
-
-      image = result.secure_url;
+    if (!imagePath) {
+      return res.status(400).json({
+        message: "Image is required.",
+      });
     }
 
-    // Upload model
-    if (req.files?.model?.[0]) {
-      const result = await uploadToCloudinary(
-        req.files.model[0].path,
-        "museum/models",
-        "raw"
-      );
-
-      model = result.secure_url;
-    }
-
-    // Delete temp files
-    if (req.files?.image?.[0]) {
-      await fs.unlink(req.files.image[0].path);
-    }
-
-    if (req.files?.model?.[0]) {
-      await fs.unlink(req.files.model[0].path);
-    }
+    const image = await uploadImage(imagePath);
+    const model = modelPath
+      ? await uploadModel(modelPath)
+      : "";
 
     const artifact = await Artifact.create({
       id: req.body.id,
@@ -162,28 +165,22 @@ export const createArtifact = async (req, res) => {
     res.status(201).json(artifact);
   } catch (err) {
     console.error(err);
-
-    // Cleanup if upload failed
-    try {
-      if (req.files?.image?.[0]) {
-        await fs.unlink(req.files.image[0].path);
-      }
-
-      if (req.files?.model?.[0]) {
-        await fs.unlink(req.files.model[0].path);
-      }
-    } catch { }
-
     res.status(500).json({
       message: err.message,
     });
+  } finally {
+    await cleanup(imagePath, modelPath);
   }
 };
 
-// =========================
-// Update
-// =========================
+// ==========================================
+// UPDATE
+// ==========================================
+
 export const updateArtifact = async (req, res) => {
+  const imagePath = req.files?.image?.[0]?.path;
+  const modelPath = req.files?.model?.[0]?.path;
+
   try {
     const artifact = await Artifact.findById(req.params.id);
 
@@ -193,35 +190,22 @@ export const updateArtifact = async (req, res) => {
       });
     }
 
-    artifact.id = req.body.id;
-    artifact.title = req.body.title;
-    artifact.museum = req.body.museum;
-    artifact.dynasty = req.body.dynasty;
-    artifact.material = req.body.material;
-    artifact.period = req.body.period;
-    artifact.description = req.body.description;
+    Object.assign(artifact, {
+      id: req.body.id,
+      title: req.body.title,
+      museum: req.body.museum,
+      dynasty: req.body.dynasty,
+      material: req.body.material,
+      period: req.body.period,
+      description: req.body.description,
+    });
 
-    if (req.files?.image?.[0]) {
-      const result = await uploadToCloudinary(
-        req.files.image[0].path,
-        "museum/images"
-      );
-
-      artifact.image = result.secure_url;
-
-      await fs.unlink(req.files.image[0].path);
+    if (imagePath) {
+      artifact.image = await uploadImage(imagePath);
     }
 
-    if (req.files?.model?.[0]) {
-      const result = await uploadToCloudinary(
-        req.files.model[0].path,
-        "museum/models",
-        "raw"
-      );
-
-      artifact.model = result.secure_url;
-
-      await fs.unlink(req.files.model[0].path);
+    if (modelPath) {
+      artifact.model = await uploadModel(modelPath);
     }
 
     await artifact.save();
@@ -229,26 +213,18 @@ export const updateArtifact = async (req, res) => {
     res.json(artifact);
   } catch (err) {
     console.error(err);
-
-    try {
-      if (req.files?.image?.[0]) {
-        await fs.unlink(req.files.image[0].path);
-      }
-
-      if (req.files?.model?.[0]) {
-        await fs.unlink(req.files.model[0].path);
-      }
-    } catch { }
-
     res.status(500).json({
       message: err.message,
     });
+  } finally {
+    await cleanup(imagePath, modelPath);
   }
 };
 
-// =========================
-// Delete
-// =========================
+// ==========================================
+// DELETE
+// ==========================================
+
 export const deleteArtifact = async (req, res) => {
   try {
     const artifact = await Artifact.findByIdAndDelete(req.params.id);
