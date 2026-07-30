@@ -5,14 +5,22 @@ import Artifact from "../models/Artifact.js";
 // =========================
 // Helper
 // =========================
-const uploadToCloudinary = async (
-  filePath,
-  folder,
-  resourceType = "auto"
-) => {
-  return await cloudinary.uploader.upload(filePath, {
-    folder,
-    resource_type: resourceType,
+const uploadToCloudinary = (filePath, folder, resourceType = "raw") => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_large(
+      filePath,
+      {
+        folder,
+        resource_type: resourceType,
+        chunk_size: 6000000, // 6 MB chunks
+      }
+    );
+
+    stream.on("error", reject);
+
+    stream.on("end", (result) => {
+      resolve(result);
+    });
   });
 };
 
