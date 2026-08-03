@@ -37,67 +37,69 @@ export default function Admin() {
     }
   }
 
+  const totalLikes = artifacts.reduce((sum, a) => sum + a.likes, 0);
+  const totalViews = artifacts.reduce((sum, a) => sum + a.views, 0);
+
   return (
-    <div className="min-h-screen bg-stone-100 py-10">
-      <div className="max-w-7xl mx-auto px-6">
+    <div className="min-h-screen bg-stone-50 py-12">
+      <div className="mx-auto max-w-7xl px-6">
 
         {/* Header */}
-        <div className="flex justify-between items-center mb-10">
+        <div className="mb-10 flex items-end justify-between border-b border-stone-200 pb-8">
           <div>
-            <h1 className="text-5xl font-bold text-stone-800">
-              🏛 Museum Admin
+            <p className="text-xs font-medium uppercase tracking-widest text-stone-400">
+              Admin
+            </p>
+            <h1 className="mt-2 font-serif text-4xl text-stone-800">
+              Museum Admin
             </h1>
-
-            <p className="text-stone-500 mt-2">
+            <p className="mt-2 text-sm text-stone-500">
               Manage artifacts in your virtual museum
             </p>
           </div>
 
           <div className="text-right">
-            <p className="text-sm text-gray-500">
+            <p className="text-xs font-medium uppercase tracking-widest text-stone-400">
               Total Artifacts
             </p>
-
-            <h2 className="text-4xl font-bold text-amber-600">
+            <p className="mt-1 font-serif text-4xl text-stone-800">
               {artifacts.length}
-            </h2>
+            </p>
           </div>
         </div>
 
         {/* Stats */}
-
-        <div className="grid md:grid-cols-3 gap-6 mb-10">
-
-          <div className="bg-white rounded-xl shadow p-6">
-            <p className="text-gray-500">Artifacts</p>
-
-            <h2 className="text-4xl font-bold">
+        <div className="mb-10 grid divide-y divide-stone-200 border border-stone-200 md:grid-cols-3 md:divide-x md:divide-y-0">
+          <div className="px-6 py-8 text-center">
+            <p className="text-[11px] font-medium uppercase tracking-widest text-stone-400">
+              Artifacts
+            </p>
+            <p className="mt-2 font-serif text-3xl text-stone-800">
               {artifacts.length}
-            </h2>
+            </p>
           </div>
 
-          <div className="bg-white rounded-xl shadow p-6">
-            <p className="text-gray-500">Total Likes</p>
-
-            <h2 className="text-4xl font-bold text-red-500">
-              {artifacts.reduce((sum, a) => sum + a.likes, 0)}
-            </h2>
+          <div className="px-6 py-8 text-center">
+            <p className="text-[11px] font-medium uppercase tracking-widest text-stone-400">
+              Total Likes
+            </p>
+            <p className="mt-2 font-serif text-3xl text-stone-800">
+              {totalLikes}
+            </p>
           </div>
 
-          <div className="bg-white rounded-xl shadow p-6">
-            <p className="text-gray-500">Total Views</p>
-
-            <h2 className="text-4xl font-bold text-blue-500">
-              {artifacts.reduce((sum, a) => sum + a.views, 0)}
-            </h2>
+          <div className="px-6 py-8 text-center">
+            <p className="text-[11px] font-medium uppercase tracking-widest text-stone-400">
+              Total Views
+            </p>
+            <p className="mt-2 font-serif text-3xl text-stone-800">
+              {totalViews}
+            </p>
           </div>
-
         </div>
 
         {/* Form */}
-
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-10">
-
+        <div className="mb-10 border border-stone-200 bg-white p-8">
           <ArtifactForm
             onArtifactAdded={fetchArtifacts}
             editingArtifact={editingArtifact}
@@ -106,112 +108,94 @@ export default function Admin() {
               fetchArtifacts();
             }}
           />
-
         </div>
 
         {/* Table */}
-
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-
-          <div className="px-6 py-5 border-b">
-            <h2 className="text-2xl font-bold">
+        <div className="border border-stone-200 bg-white">
+          <div className="border-b border-stone-200 px-6 py-5">
+            <h2 className="font-serif text-2xl text-stone-800">
               Artifact Collection
             </h2>
           </div>
 
-          <table className="w-full">
-
+          <table className="w-full text-sm">
             <thead className="bg-stone-800 text-white">
-
               <tr>
-
-                <th className="p-4">Image</th>
-
-                <th className="p-4 text-left">Title</th>
-
-                <th className="p-4 text-left">Museum</th>
-
-                <th className="p-4 text-left">Dynasty</th>
-
-                <th className="p-4">❤️</th>
-
-                <th className="p-4">👁</th>
-
-                <th className="p-4">Actions</th>
-
+                <th className="p-4 text-left font-medium uppercase tracking-wider text-xs">
+                  Image
+                </th>
+                <th className="p-4 text-left font-medium uppercase tracking-wider text-xs">
+                  Title
+                </th>
+                <th className="p-4 text-left font-medium uppercase tracking-wider text-xs">
+                  Museum
+                </th>
+                <th className="p-4 text-left font-medium uppercase tracking-wider text-xs">
+                  Dynasty
+                </th>
+                <th className="p-4 text-center font-medium uppercase tracking-wider text-xs">
+                  Likes
+                </th>
+                <th className="p-4 text-center font-medium uppercase tracking-wider text-xs">
+                  Views
+                </th>
+                <th className="p-4 text-center font-medium uppercase tracking-wider text-xs">
+                  Actions
+                </th>
               </tr>
-
             </thead>
 
             <tbody>
-
               {artifacts.map((artifact) => (
-
                 <tr
                   key={artifact._id}
-                  className="border-b hover:bg-stone-50 transition"
+                  className="border-b border-stone-100 transition hover:bg-stone-50"
                 >
-
                   <td className="p-3">
-
                     <img
                       src={artifact.image}
                       alt={artifact.title}
-                      className="w-20 h-20 object-cover rounded-lg shadow"
+                      className="h-16 w-16 object-cover"
                     />
-
                   </td>
 
-                  <td className="font-semibold">
+                  <td className="font-medium text-stone-800">
                     {artifact.title}
                   </td>
 
-                  <td>
-                    {artifact.museum}
-                  </td>
+                  <td className="text-stone-600">{artifact.museum}</td>
 
-                  <td>
-                    {artifact.dynasty}
-                  </td>
+                  <td className="text-stone-600">{artifact.dynasty}</td>
 
-                  <td className="text-center">
+                  <td className="text-center text-stone-600">
                     {artifact.likes}
                   </td>
 
-                  <td className="text-center">
+                  <td className="text-center text-stone-600">
                     {artifact.views}
                   </td>
 
                   <td>
-
-                    <div className="flex gap-2 justify-center">
-
+                    <div className="flex justify-center gap-2">
                       <button
                         onClick={() => setEditingArtifact(artifact)}
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
+                        className="border border-stone-300 px-3 py-2 text-xs font-medium uppercase tracking-wide text-stone-600 transition hover:border-stone-900 hover:text-stone-900"
                       >
-                        ✏️
+                        Edit
                       </button>
 
                       <button
                         onClick={() => deleteArtifact(artifact._id)}
-                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
+                        className="border border-red-200 px-3 py-2 text-xs font-medium uppercase tracking-wide text-red-500 transition hover:border-red-500 hover:bg-red-500 hover:text-white"
                       >
-                        🗑
+                        Delete
                       </button>
-
                     </div>
-
                   </td>
-
                 </tr>
-
               ))}
-
             </tbody>
-
           </table>
-
         </div>
 
       </div>

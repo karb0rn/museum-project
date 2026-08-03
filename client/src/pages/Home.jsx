@@ -35,17 +35,11 @@ export default function Home() {
       (period === "All" || artifact.period === period)
     );
   });
-  console.log({
-    museum,
-    dynasty,
-    material,
-    period,
-    search,
-  });
 
   return (
     <>
       <Hero />
+
       <SearchBar
         search={search}
         setSearch={setSearch}
@@ -61,8 +55,8 @@ export default function Home() {
         period={period}
         setPeriod={setPeriod}
       />
-      ...
-      <section className="max-w-7xl mx-auto px-6 mt-4">
+
+      <section className="mx-auto max-w-7xl px-6 mt-6 flex justify-end">
         <button
           onClick={() => {
             setSearch("");
@@ -71,28 +65,31 @@ export default function Home() {
             setMaterial("All");
             setPeriod("All");
           }}
-          className="bg-stone-700 text-white px-5 py-2 rounded-lg hover:bg-stone-800"
+          className="border border-stone-300 px-5 py-2 text-xs font-medium uppercase tracking-widest text-stone-500 transition hover:border-stone-900 hover:text-stone-900"
         >
           Clear Filters
         </button>
       </section>
+
       <Dashboard artifacts={artifacts} />
 
       <FeaturedArtifact artifacts={artifacts} />
 
-
       <section
         id="collection"
-        className="max-w-7xl mx-auto px-6 mt-8"
-      ></section>
+        className="mx-auto max-w-7xl px-6 mt-20"
+      >
+        <div className="flex items-end justify-between border-b border-stone-200 pb-6">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-widest text-stone-400">
+              Collection
+            </p>
+            <h2 className="mt-2 font-serif text-3xl text-stone-800">
+              Featured Collection
+            </h2>
+          </div>
 
-      <section className="max-w-7xl mx-auto px-6 mt-8">
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-semibold">
-            Featured Collection
-          </h2>
-
-          <span className="text-gray-500">
+          <span className="text-xs uppercase tracking-widest text-stone-400">
             {filteredArtifacts.length} Artifacts
           </span>
         </div>
@@ -101,12 +98,12 @@ export default function Home() {
       {filteredArtifacts.length > 0 ? (
         <CardGrid artifacts={filteredArtifacts} />
       ) : (
-        <div className="text-center py-20">
-          <h2 className="text-3xl font-semibold">
+        <div className="py-20 text-center">
+          <h2 className="font-serif text-3xl text-stone-800">
             No artifacts found
           </h2>
 
-          <p className="text-gray-500 mt-3">
+          <p className="mt-3 text-stone-500">
             Try changing your search or filters.
           </p>
         </div>

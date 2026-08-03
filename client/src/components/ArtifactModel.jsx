@@ -7,16 +7,7 @@ import { PLYLoader } from "three/examples/jsm/loaders/PLYLoader";
 function NoModel() {
   return (
     <Html center>
-      <div
-        style={{
-          background: "white",
-          padding: "10px 16px",
-          borderRadius: "8px",
-          fontWeight: "bold",
-          color: "#444",
-          boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
-        }}
-      >
+      <div className="border border-stone-300 bg-white px-5 py-3 text-xs font-medium uppercase tracking-widest text-stone-500">
         No 3D Model Available
       </div>
     </Html>
@@ -85,7 +76,7 @@ function PLYModel({ modelPath }) {
         rotation={[-Math.PI / 2, 0, 0]}
       >
         <meshStandardMaterial
-          color="#d0d0d0"
+          color="#d6cfc3"
           roughness={0.7}
           metalness={0.2}
           side={THREE.DoubleSide}

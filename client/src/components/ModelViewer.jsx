@@ -23,7 +23,7 @@ export default function ModelViewer({ children }) {
   };
 
   return (
-    <div className="w-full h-[600px] rounded-xl overflow-hidden bg-gray-200">
+    <div className="h-[600px] w-full overflow-hidden border border-stone-200 bg-stone-100">
       <Canvas
         camera={{
           position: [0, 0, 6],
